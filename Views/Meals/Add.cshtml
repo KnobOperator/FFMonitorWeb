@@ -1,0 +1,139 @@
+﻿@model FFMonitorWeb.Models.Meal
+
+@{
+    ViewData["Title"] = "Add Meal";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Add" method="post" class="form-horizontal" id="mealForm">
+    <div class="form-group">
+        <label for="Date">Date</label>
+        <input type="date" class="form-control" id="Date" name="Date" required />
+        <span id="DateError" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="Time">Time</label>
+        <input type="time" class="form-control" id="Time" name="Time" required />
+        <span id="TimeError" class="text-danger"></span>
+    </div>
+
+    <div id="foods-container">
+        <div class="food-entry form-group">
+            <label for="FoodName">Food</label>
+            <input type="text" class="typeahead form-control" name="FoodName" placeholder="Search for food..." required />
+            <span class="text-danger"></span>
+            <label for="Amount">Amount (g)</label>
+            <input type="number" class="form-control" name="Amount" placeholder="Amount in grams" required />
+            <span class="text-danger"></span>
+            <button type="button" class="btn btn-danger remove-food">Remove</button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-primary" id="add-food">Add Another Food</button>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Add Meal" class="btn btn-default" />
+    </div>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var foodTemplate = $('.food-entry').first().clone();
+            foodTemplate.find('input').val('');
+            foodTemplate.find('.remove-food').removeClass('d-none');
+
+            $('#add-food').click(function () {
+                console.log("Add Another Food button clicked");
+                var newFood = foodTemplate.clone();
+                $('#foods-container').append(newFood);
+                initializeTypeahead(newFood.find('.typeahead'));
+            });
+
+            $(document).on('click', '.remove-food', function () {
+                console.log("Remove Food button clicked");
+                $(this).closest('.food-entry').remove();
+            });
+
+            function initializeTypeahead(element) {
+                console.log("Initializing typeahead for:", element);
+                element.typeahead({
+                    source: function (query, process) {
+                        return $.get('/Food/Search', { query: query }, function (data) {
+                            return process(data);
+                        });
+                    },
+                    afterSelect: function (item) {
+                        console.log("Selected item:", item);
+                        $(this).closest('.food-entry').find('.food-id').val(item.id);
+                    }
+                });
+            }
+
+            initializeTypeahead($('.typeahead'));
+
+            $('#mealForm').submit(function (event) {
+                event.preventDefault();
+                console.log("Form submit event triggered");
+
+                var isValid = true;
+
+                if (!$('#Date').val()) {
+                    $('#DateError').text('Date is required.');
+                    isValid = false;
+                } else {
+                    $('#DateError').text('');
+                }
+
+                if (!$('#Time').val()) {
+                    $('#TimeError').text('Time is required.');
+                    isValid = false;
+                } else {
+                    $('#TimeError').text('');
+                }
+
+                $('#foods-container .food-entry').each(function () {
+                    var foodName = $(this).find('input[name="FoodName"]');
+                    var amount = $(this).find('input[name="Amount"]');
+
+                    if (!foodName.val()) {
+                        foodName.next('.text-danger').text('Food name is required.');
+                        isValid = false;
+                    } else {
+                        foodName.next('.text-danger').text('');
+                    }
+
+                    if (!amount.val() || amount.val() <= 0) {
+                        amount.next('.text-danger').text('Amount must be a positive number.');
+                        isValid = false;
+                    } else {
+                        amount.next('.text-danger').text('');
+                    }
+                });
+
+                if (isValid) {
+                    console.log("Form is valid, submitting via AJAX");
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Add", "Meals")',
+                        data: $('#mealForm').serialize(),
+                        success: function (response) {
+                            console.log("Meal added successfully");
+                            window.location.href = '@Url.Action("Index", "Meals")';
+                        },
+                        error: function (xhr, status, error) {
+                            console.log("Error: " + error);
+                        }
+                    });
+                } else {
+                    console.log("Form is invalid, not submitting");
+                }
+            });
+        });
+    </script>
+}

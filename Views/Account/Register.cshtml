@@ -1,0 +1,131 @@
+﻿@model FFMonitorWeb.Models.RegisterViewModel
+
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h2>Register</h2>
+
+<form asp-action="Register" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="FirstName" class="control-label">First Name</label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="LastName" class="control-label">Last Name</label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password" class="control-label">Password</label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
+        <input asp-for="ConfirmPassword" class="form-control" type="password" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Register" class="btn btn-primary" />
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script>
+        $(document).ready(function () {
+            console.log("Document is ready");
+            var form = $("form");
+            console.log(form); // Log the form element to check if it's selected
+
+            // Log form elements and their data-val attributes
+            console.log("Form elements:", form.find("input, select, textarea"));
+            form.find("input, select, textarea").each(function () {
+                console.log("Element:", this);
+                console.log("data-val attribute:", $(this).attr("data-val"));
+                console.log("data-val-required attribute:", $(this).attr("data-val-required"));
+            });
+
+            // Extend jQuery validation with password strength method
+            $.validator.addMethod("passwordStrength", function (value, element) {
+                console.log("Password strength validation invoked for value:", value);
+                const isValid = this.optional(element)
+                    || (/[A-Z]/.test(value)  // has uppercase letter
+                        && /[a-z]/.test(value)  // has lowercase letter
+                        && /[0-9]/.test(value)  // has a digit
+                        && /[\W_]/.test(value)  // has special character
+                        && value.length >= 8); // has at least 8 characters
+
+                console.log("Password strength validation result for value:", value, "is valid:", isValid);
+                return isValid;
+            }, "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.");
+
+            // Ensure the custom method is added
+            console.log("Custom validation method added for password strength:", $.validator.methods.passwordStrength);
+
+            // Apply validation rules explicitly using jQuery
+            $("#Password").rules("add", {
+                passwordStrength: true,
+                messages: {
+                    passwordStrength: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+                }
+            });
+
+            form.validate({
+                debug: true,
+                rules: {
+                    Password: {
+                        required: true,
+                        minlength: 8,
+                        passwordStrength: true
+                    },
+                    ConfirmPassword: {
+                        required: true,
+                        equalTo: "#Password"
+                    }
+                },
+                messages: {
+                    Password: {
+                        required: "Password is required.",
+                        minlength: "Password must be at least 8 characters long.",
+                        passwordStrength: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+                    },
+                    ConfirmPassword: {
+                        required: "Confirm Password is required.",
+                        equalTo: "The password and confirmation password do not match."
+                    }
+                },
+                errorPlacement: function (error, element) {
+                    console.log("Validation error: ", error.text());
+                    error.appendTo(element.parent("div"));
+                }
+            });
+
+            form.on('submit', function (e) {
+                console.log("Form submitted");
+                if (!form.valid()) {
+                    console.log("Form is not valid");
+                    e.preventDefault(); // Prevent form submission if not valid
+                } else {
+                    console.log("Form is valid");
+                }
+            });
+
+            console.log("Validation initialized");
+        });
+    </script>
+}

@@ -1,0 +1,71 @@
+﻿@model IEnumerable<FFMonitorWeb.Models.Food>
+
+@{
+    ViewData["Title"] = "Food List";
+    var nameSortIcon = ViewData["NameSortParm"].ToString() == "name_desc" ? "↓" : "↑";
+    var typeSortIcon = ViewData["TypeSortParm"].ToString() == "type_desc" ? "↓" : "↑";
+    var caloriesSortIcon = ViewData["CaloriesSortParm"].ToString() == "calories_desc" ? "↓" : "↑";
+    var carbohydratesSortIcon = ViewData["CarbohydratesSortParm"].ToString() == "carbohydrates_desc" ? "↓" : "↑";
+    var lipidsSortIcon = ViewData["LipidSortParm"].ToString() == "lipid_desc" ? "↓" : "↑";
+    var proteinsSortIcon = ViewData["ProteinSortParm"].ToString() == "protein_desc" ? "↓" : "↑";
+}
+
+<h2>Food List</h2>
+
+<a class="btn btn-primary" href="/Food/Add">Add</a> 
+
+<div style="overflow-x:auto;">
+    <table class="table">
+        <thead>
+            <tr>
+                <th><a href="#" class="sort-link" data-sort="@ViewData["NameSortParm"]" data-column="Name">Name @nameSortIcon</a></th>
+                <th><a href="#" class="sort-link" data-sort="@ViewData["TypeSortParm"]" data-column="Type">Type @typeSortIcon</a></th>
+                <th><a href="#" class="sort-link" data-sort="@ViewData["CaloriesSortParm"]" data-column="Calories">Calories @caloriesSortIcon</a></th>
+                <th><a href="#" class="sort-link" data-sort="@ViewData["CarbohydratesSortParm"]" data-column="Carbohydrates">Carbohydrates @carbohydratesSortIcon</a></th>
+                <th><a href="#" class="sort-link" data-sort="@ViewData["LipidSortParm"]" data-column="Lipids">Lipids @lipidsSortIcon</a></th>
+                <th><a href="#" class="sort-link" data-sort="@ViewData["ProteinSortParm"]" data-column="Proteins">Proteins @proteinsSortIcon</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var food in Model) {
+                <tr>
+                    <td>@food.Name</td>
+                    <td>@food.FoodType</td>
+                    <td>@food.Calories</td>
+                    <td>@food.Carbohydrates</td>
+                    <td>@food.Lipid</td>
+                    <td>@food.Protein</td>
+                    <td>
+                        <a class="btn btn-primary" href="/Food/Edit/@food.Id">Edit</a>
+                        <button class="btn btn-danger" onclick="confirmDelete('@food.Id')">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var sortLinks = document.querySelectorAll(".sort-link");
+            sortLinks.forEach(function(link) {
+                link.addEventListener("click", function(event) {
+                    event.preventDefault();
+                    var sortOrder = event.target.getAttribute("data-sort");
+                    var column = event.target.getAttribute("data-column");
+                    console.log("Column clicked:", column);
+                    console.log("Sort order:", sortOrder);
+                    window.location.href = "/Food?sortOrder=" + sortOrder;
+                });
+            });
+        });
+    </script>
+    <script>
+        function confirmDelete(foodId) {
+            if (confirm("Are you sure you want to delete this food item?")) {
+                window.location.href = '/Food/Delete/' + foodId;
+            }
+        }
+    </script>
+}

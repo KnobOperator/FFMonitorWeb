@@ -1,0 +1,106 @@
+﻿@model IEnumerable<FFMonitorWeb.Models.Meal>
+
+@{
+    ViewData["Title"] = "Meals Index";
+}
+
+<style>
+    .meals-table-container {
+        background-color: #0d1b2a; /* Very dark blue background */
+        color: #adb5bd; /* Light grey text */
+        border-radius: 8px;
+        padding: 20px 0;
+    }
+
+    .meals-table {
+        background-color: #0d1b2a; /* Very dark blue background */
+        color: #adb5bd; /* Light grey text */
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .meals-table thead {
+            background-color: #1b263b; /* Slightly less dark blue for the header */
+            border-bottom: 1px solid #343a40; /* Less thick dark grey border */
+        }
+
+        .meals-table th, .meals-table td {
+            padding: 12px 15px;
+            border: 1px solid #343a40; /* Dark grey borders */
+        }
+
+        .meals-table td {
+            vertical-align: middle;
+        }
+
+        .meals-table tr:nth-child(even) {
+            background-color: #1b263b; /* Slightly less dark blue for alternating rows */
+        }
+
+        .meals-table .actions a {
+            font-size: 0.875em; /* Smaller font size for action links */
+            margin-right: 10px; /* Spacing between action links */
+            color: #ffc300 !important; /* Yellow color for action links */
+        }
+
+    .table-title {
+        text-align: left;
+        color: #ffc300; /* Table name font color */
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="header-container">
+        <h2 class="table-title">Meals</h2>
+        <a class="btn btn-primary" href="/Meals/Add">Add Meal</a>
+    </div>
+
+    <div class="meals-table-container">
+        <table class="table meals-table">
+            <thead>
+                <tr>
+                    <th>Meal</th>
+                    <th>@Html.DisplayNameFor(model => model.Date)</th>
+                    <th>@Html.DisplayNameFor(model => model.Time)</th>
+                    <th>Foods</th>
+                    <th>Total Calories</th>
+                    <th>Total Carbohydrates</th>
+                    <th>Total Lipids</th>
+                    <th>Total Proteins</th>
+                    <th class="text-center"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model) {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.MealType)</td>
+                        <td>@item.Date.ToString("dd MMM yyyy")</td>
+                        <td>@Html.DisplayFor(modelItem => item.Time)</td>
+                        <td>
+                            @foreach (var food in item.Foods) {
+                                @food.Name
+
+                                <br />
+                            }
+                        </td>
+                        <td>@item.TotalCalories</td>
+                        <td>@item.TotalCarbohydrates</td>
+                        <td>@item.TotalLipids</td>
+                        <td>@item.TotalProteins</td>
+                        <td class="text-center actions">
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                            @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

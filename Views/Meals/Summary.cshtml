@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "Summary";
+}
+
+<h2 class="styled-header">Summary</h2>
+
+<div class="container styled-container">
+    <div class="row">
+        <div class="col-md-4">
+            <canvas id="pieChart" style="height: 400px;"></canvas>
+        </div>
+        <div class="col-md-4">
+            <canvas id="barGraph" style="height: 400px;"></canvas>
+        </div>
+        <div class="col-md-4">
+            <h3 style="color: #ffc300;">Overview</h3>
+            <p style="color: white;">Total Carbohydrates: <span class="summary-value">@ViewBag.TotalCarbohydrates.ToString("0.00") g</span></p>
+            <p style="color: white;">Total Lipids: <span class="summary-value">@ViewBag.TotalLipids.ToString("0.00") g</span></p>
+            <p style="color: white;">Total Proteins: <span class="summary-value">@ViewBag.TotalProteins.ToString("0.00") g</span></p>
+            <p style="color: white;">Total Calories: <span class="summary-value">@ViewBag.TotalCalories.ToString("0.00")</span> kcal</p>
+            <p style="color: white;">Time Period: <span class="summary-value">From 22 May 2024 till 26 May 2024</span></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    h2 {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .styled-header {
+        background-color: rgba(46, 2, 104, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+        color: #ffc300;
+        text-align: center;
+    }
+
+    .container {
+        margin-top: 20px;
+    }
+
+    .summary-value {
+        font-weight: bold;
+    }
+
+    canvas {
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .col-md-4 {
+        margin-bottom: 20px;
+    }
+
+    .row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .styled-container {
+        background-color: rgba(46, 2, 104, 0.8);
+        border-radius: 15px;
+        padding: 20px;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Document loaded. Initializing charts...");
+
+            // Pie chart
+            const pieChartElement = document.getElementById('pieChart');
+            if (pieChartElement) {
+                const pieCtx = pieChartElement.getContext('2d');
+                const pieChart = new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Carbohydrates', 'Lipids', 'Proteins'],
+                        datasets: [{
+                            data: [
+        @ViewBag.TotalCarbohydrates,
+        @ViewBag.TotalLipids,
+        @ViewBag.TotalProteins
+                                    ],
+                            backgroundColor: ['#750135', '#022472', '#b27401'],
+                            borderColor: '#D3D3D3', // Thin grey borders
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'white'
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log("Pie chart initialized.");
+            } else {
+                console.error("pieChart canvas element not found");
+            }
+
+            // Bar graph
+            const barChartElement = document.getElementById('barGraph');
+            if (barChartElement) {
+                const barCtx = barChartElement.getContext('2d');
+
+                // Manually add 5 bars for each day
+                const dates = ['22 May', '23 May', '24 May', '25 May', '26 May'];
+                const calories = [1617, 744, 1656, 1482, 2009]; // Replace with actual data
+
+                const barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Total Calories',
+                            data: calories,
+                            backgroundColor: '#5bc0de'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'category',
+                                title: {
+                                    display: true,
+                                    text: 'Date',
+                                    color: '#ffc300'
+                                },
+                                ticks: {
+                                    color: 'white'
+                                },
+                                grid: {
+                                    color: 'grey'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Calories',
+                                    color: '#ffc300'
+                                },
+                                ticks: {
+                                    color: 'white'
+                                },
+                                grid: {
+                                    color: 'grey'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: 'white'
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log("Bar chart initialized.");
+            } else {
+                console.error("barGraph canvas element not found");
+            }
+        });
+    </script>
+}
